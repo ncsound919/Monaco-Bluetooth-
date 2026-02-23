@@ -206,8 +206,9 @@ const OnScreenKeyboard = (() => {
   function _moveFocus(dRow, dCol) {
     let newRow = _focusRow + dRow;
     let newCol = _focusCol + dCol;
-    // Clamp row
-    newRow = Math.max(0, Math.min(ROWS.length - 1, newRow));
+    // Wrap row
+    const rowsLen = ROWS.length;
+    newRow = ((newRow % rowsLen) + rowsLen) % rowsLen;
     // Wrap column within row
     const rowLen = _keyEls[newRow]?.length || 0;
     newCol = ((newCol % rowLen) + rowLen) % rowLen;

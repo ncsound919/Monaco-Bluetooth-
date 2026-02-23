@@ -30,9 +30,13 @@
   padding-bottom: 24px;
 }
 
-#mbi-osk-overlay.mbi-hidden,
-.mbi-hidden { display: none !important; }
+#mbi-osk-overlay.mbi-hidden {
+  display: none !important;
+}
 
+.mbi-hidden {
+  display: none;
+}
 #mbi-osk {
   background: var(--mbi-bg);
   border: 1px solid #444;

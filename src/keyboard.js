@@ -64,7 +64,15 @@ const OnScreenKeyboard = (() => {
       case 'down':      _moveFocus( 1,  0); break;
       case 'left':      _moveFocus( 0, -1); break;
       case 'right':     _moveFocus( 0,  1); break;
-      case 'confirm':   _pressKey(_keyEls[_focusRow]?.[_focusCol]?.dataset?.key); break;
+      case 'confirm': {
+        const rowEls = _keyEls[_focusRow];
+        const keyEl = rowEls && rowEls[_focusCol];
+        const key = keyEl && keyEl.dataset && keyEl.dataset.key;
+        if (key) {
+          _pressKey(key);
+        }
+        break;
+      }
       case 'backspace': _pressKey('⌫');  break;
       case 'space':     _pressKey('Space'); break;
       case 'shift':     _toggleShift(); break;

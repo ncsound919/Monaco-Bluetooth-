@@ -95,6 +95,12 @@
   50%       { opacity: 0.45; }
 }
 
+@media (prefers-reduced-motion: reduce) {
+  #mbi-voice-indicator {
+    animation: none;
+    opacity: 1;
+  }
+}
 /* ── Controller status badge ────────────────────────────── */
 #mbi-status-badge {
   display: inline-flex;

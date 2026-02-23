@@ -46,7 +46,12 @@ MonacoBluetoothIntegration.init({
   chatInput:    document.getElementById('chat-input'),
   // Optional – inject the controller status badge into your status bar:
   statusTarget: document.getElementById('status-bar'),
+  // Optional – double-tap window in ms for the OSK trigger (default 400):
+  doubleTapMs:  400,
 });
+
+// To tear down the integration (stops polling, removes listeners):
+MonacoBluetoothIntegration.destroy();
 ```
 
 ## Button mapping overview

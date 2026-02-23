@@ -15,6 +15,10 @@ const ControllerHandler = (() => {
   const REPEAT_INITIAL_MS = 400;
   const REPEAT_MS         = 80;
   const POLL_HZ           = 60;
+  // Minimum accumulated movement before the cursor/scroll actually updates.
+  // Prevents constant re-renders when the stick rests just above the deadzone.
+  const CURSOR_ACCUM_THRESHOLD = 1.0;
+  const SCROLL_ACCUM_THRESHOLD = 4.0;
 
   /**
    * Unified button index → name mapping (PlayStation / Xbox).
@@ -118,6 +122,12 @@ const ControllerHandler = (() => {
   let _lastPressed    = new Set();
   let _repeatTimers   = {};
   const _customActions = {};
+  // Accumulators for sub-unit stick movement; only fire editor calls when
+  // the accumulated value crosses a whole-unit threshold.
+  let _cursorAccumX   = 0;
+  let _cursorAccumY   = 0;
+  let _scrollAccumX   = 0;
+  let _scrollAccumY   = 0;
 
   // ── Public API ───────────────────────────────────────────
 
@@ -265,23 +275,44 @@ const ControllerHandler = (() => {
     }
   }
 
-  /** Analog stick / trigger axis processing. */
+  /** Analog stick / trigger axis processing with accumulator-based throttling. */
   function _processAxes(gp) {
     if (!_editor) return;
     const [lx, ly, rx, ry] = gp.axes;
 
-    // Left stick → cursor movement
+    // Left stick → cursor movement (accumulate to avoid per-frame editor calls)
     if (Math.abs(lx) > DEADZONE_ANALOG || Math.abs(ly) > DEADZONE_ANALOG) {
-      _moveCursorByAnalog(lx, ly);
+      _cursorAccumX += lx;
+      _cursorAccumY += ly;
+      if (Math.abs(_cursorAccumX) >= CURSOR_ACCUM_THRESHOLD ||
+          Math.abs(_cursorAccumY) >= CURSOR_ACCUM_THRESHOLD) {
+        _moveCursorByAnalog(_cursorAccumX, _cursorAccumY);
+        _cursorAccumX = 0;
+        _cursorAccumY = 0;
+      }
+    } else {
+      // Stick returned to deadzone – discard residual accumulation
+      _cursorAccumX = 0;
+      _cursorAccumY = 0;
     }
 
-    // Right stick → scroll
+    // Right stick → scroll (accumulate to avoid constant setScrollPosition calls)
     if (Math.abs(rx) > DEADZONE_ANALOG || Math.abs(ry) > DEADZONE_ANALOG) {
       const speed = _held.has(6) ? 3 : 1; // L2 held → fast scroll
-      _editor.setScrollPosition({
-        scrollLeft: _editor.getScrollLeft() + rx * 8 * speed,
-        scrollTop:  _editor.getScrollTop()  + ry * 8 * speed,
-      });
+      _scrollAccumX += rx * speed;
+      _scrollAccumY += ry * speed;
+      if (Math.abs(_scrollAccumX) >= SCROLL_ACCUM_THRESHOLD ||
+          Math.abs(_scrollAccumY) >= SCROLL_ACCUM_THRESHOLD) {
+        _editor.setScrollPosition({
+          scrollLeft: _editor.getScrollLeft() + _scrollAccumX * 8,
+          scrollTop:  _editor.getScrollTop()  + _scrollAccumY * 8,
+        });
+        _scrollAccumX = 0;
+        _scrollAccumY = 0;
+      }
+    } else {
+      _scrollAccumX = 0;
+      _scrollAccumY = 0;
     }
   }
 

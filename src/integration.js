@@ -17,6 +17,8 @@
  *     chatInput: document.getElementById('your-chat-input'),
  *     // Optional status badge injection (set to null to skip):
  *     statusTarget: document.getElementById('your-status-bar'),
+ *     // Optional: double-tap window in ms for OSK trigger (default 400):
+ *     doubleTapMs: 400,
  *   });
  *
  * HTML additions (add once to your IDE's HTML)
@@ -40,12 +42,22 @@
 
 const MonacoBluetoothIntegration = (() => {
 
-  let _opts = {};
+  // Default double-tap window in ms; overridable via options.doubleTapMs
+  const DEFAULT_DOUBLE_TAP_MS = 400;
+
+  let _opts        = {};
+  let _initialized = false;
 
   // ── Public API ───────────────────────────────────────────
 
   function init(options = {}) {
-    _opts = options;
+    // Guard against duplicate initialization
+    if (_initialized) {
+      console.warn('[MBI] Already initialized. Call destroy() before re-initializing.');
+      return;
+    }
+    _opts        = options;
+    _initialized = true;
 
     const {
       editor,
@@ -58,46 +70,87 @@ const MonacoBluetoothIntegration = (() => {
     } = options;
 
     // 1. Mode switching
-    Modes.init({ editor: editorEl, sidebar: sidebarEl, terminal: terminalEl, chatInput });
+    if (typeof Modes !== 'undefined') {
+      Modes.init({ editor: editorEl, sidebar: sidebarEl, terminal: terminalEl, chatInput });
+    } else {
+      console.warn('[MBI] Modes module not loaded – mode switching disabled.');
+    }
 
     // 2. Monaco editor integration (controller + voice)
     if (editor && monacoNS) {
-      ControllerHandler.init(editor, monacoNS);
-      VoiceInput.init(editor);
+      if (typeof ControllerHandler !== 'undefined') {
+        ControllerHandler.init(editor, monacoNS);
+      }
+      if (typeof VoiceInput !== 'undefined') {
+        VoiceInput.init(editor);
+      }
     } else {
       console.warn('[MBI] No editor instance supplied – controller axis movement and voice insert will be limited.');
     }
 
     // 3. Register OSK-related controller actions
-    _registerOskActions();
+    if (typeof ControllerHandler !== 'undefined' && typeof OnScreenKeyboard !== 'undefined') {
+      _registerOskActions();
+    }
 
     // 4. Register voice-input controller actions
-    _registerVoiceActions();
+    if (typeof ControllerHandler !== 'undefined' && typeof VoiceInput !== 'undefined') {
+      _registerVoiceActions();
+    }
 
     // 5. Bluetooth status badge
     _injectStatusBadge(statusTarget);
-    BluetoothManager.onStatus(_onBluetoothStatus);
+    if (typeof BluetoothManager !== 'undefined') {
+      BluetoothManager.onStatus(_onBluetoothStatus);
+    }
 
     // 6. Wire connect button (if present in the host IDE)
     const connectBtn = document.getElementById('mbi-connect-btn');
-    if (connectBtn) {
-      connectBtn.addEventListener('click', () => BluetoothManager.connect());
+    if (connectBtn && typeof BluetoothManager !== 'undefined') {
+      connectBtn.addEventListener('click', _onConnectClick);
     }
   }
 
+  /**
+   * Tear down the integration: stops the controller poller, removes the
+   * connect-button listener, and resets state so init() can be called again.
+   */
+  function destroy() {
+    if (!_initialized) return;
+
+    if (typeof ControllerHandler !== 'undefined') {
+      ControllerHandler.destroy();
+    }
+    if (typeof BluetoothManager !== 'undefined') {
+      BluetoothManager.disconnect();
+    }
+
+    const connectBtn = document.getElementById('mbi-connect-btn');
+    if (connectBtn) connectBtn.removeEventListener('click', _onConnectClick);
+
+    const badge = document.getElementById('mbi-status-badge');
+    if (badge) badge.remove();
+
+    _opts        = {};
+    _initialized = false;
+  }
+
   // ── Private helpers ───────────────────────────────────────
+
+  function _onConnectClick() { BluetoothManager.connect(); }
 
   /**
    * Register Double-tap Cross_A → open OSK, and D-Pad navigation while OSK is open.
    * Source: bluetooth.onScreenKeyboard.trigger = "Double-tap Cross_A on any text input"
    */
   function _registerOskActions() {
+    const doubleTapMs = (typeof _opts.doubleTapMs === 'number' ? _opts.doubleTapMs : DEFAULT_DOUBLE_TAP_MS);
     let _lastCrossA = 0;
 
     // Double-tap Cross_A opens the OSK
     ControllerHandler.registerAction('global', 'Cross_A', () => {
       const now = Date.now();
-      if (now - _lastCrossA < 400) {
+      if (now - _lastCrossA < doubleTapMs) {
         const active = document.activeElement;
         if (active && ('value' in active || active.isContentEditable)) {
           OnScreenKeyboard.show(active);
@@ -163,5 +216,5 @@ const MonacoBluetoothIntegration = (() => {
     else                          badge.classList.add('mbi-disconnected');
   }
 
-  return { init };
+  return { init, destroy };
 })();

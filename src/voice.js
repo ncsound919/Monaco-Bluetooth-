@@ -112,15 +112,19 @@ const VoiceInput = (() => {
 
   function _defaultInsert(text, target) {
     // If a Monaco editor is active, insert at cursor
-    if (_editor && document.activeElement &&
-        document.getElementById('monaco-editor')?.contains(document.activeElement)) {
-      const selection = _editor.getSelection();
-      _editor.executeEdits('voice-input', [{
-        range: selection,
-        text,
-        forceMoveMarkers: true,
-      }]);
-      return;
+    if (_editor && document.activeElement) {
+      const editorDomNode = typeof _editor.getDomNode === 'function'
+        ? _editor.getDomNode()
+        : null;
+      if (editorDomNode && editorDomNode.contains(document.activeElement)) {
+        const selection = _editor.getSelection();
+        _editor.executeEdits('voice-input', [{
+          range: selection,
+          text,
+          forceMoveMarkers: true,
+        }]);
+        return;
+      }
     }
     // Otherwise insert into a focused text input / textarea
     if (target && ('value' in target)) {

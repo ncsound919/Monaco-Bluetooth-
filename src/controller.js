@@ -211,9 +211,20 @@ const ControllerHandler = (() => {
     _dispatch(combo);
     // Key-repeat
     _repeatTimers[idx] = setTimeout(() => {
+      // If the button is no longer held when the initial delay elapses,
+      // do not start the repeat interval.
+      if (!_held.has(idx)) {
+        clearTimeout(_repeatTimers[idx]);
+        delete _repeatTimers[idx];
+        return;
+      }
       _repeatTimers[idx] = setInterval(() => {
-        if (_held.has(idx)) _dispatch(combo);
-        else _onButtonUp(idx);
+        if (_held.has(idx)) {
+          _dispatch(combo);
+        } else {
+          clearInterval(_repeatTimers[idx]);
+          delete _repeatTimers[idx];
+        }
       }, REPEAT_MS);
     }, REPEAT_INITIAL_MS);
   }

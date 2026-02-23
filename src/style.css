@@ -1,0 +1,118 @@
+/* ============================================================
+   Monaco Bluetooth Integration – Overlay Styles
+   Drop this into any page that hosts a Monaco editor.
+   Only integration UI is styled here (OSK, voice indicator,
+   controller status badge). Your existing IDE theme is untouched.
+   ============================================================ */
+
+:root {
+  --mbi-accent:       #007acc;
+  --mbi-bg:           rgba(30, 30, 30, 0.95);
+  --mbi-key-bg:       #3c3c3c;
+  --mbi-key-color:    #cccccc;
+  --mbi-key-border:   #555555;
+  --mbi-key-radius:   6px;
+  --mbi-key-hl:       #007acc;
+  --mbi-connected:    #4ec9b0;
+  --mbi-disconnected: #f48771;
+}
+
+/* ── On-Screen Keyboard overlay ─────────────────────────── */
+#mbi-osk-overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.5);
+  backdrop-filter: blur(4px);
+  display: flex;
+  align-items: flex-end;
+  justify-content: center;
+  z-index: 9999;
+  padding-bottom: 24px;
+}
+
+#mbi-osk-overlay.mbi-hidden {
+  display: none !important;
+}
+
+.mbi-hidden {
+  display: none;
+}
+#mbi-osk {
+  background: var(--mbi-bg);
+  border: 1px solid #444;
+  border-radius: var(--mbi-key-radius);
+  padding: 12px;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  box-shadow: 0 -4px 32px rgba(0, 0, 0, 0.6);
+  user-select: none;
+}
+
+.mbi-osk-row {
+  display: flex;
+  gap: 5px;
+  justify-content: center;
+}
+
+.mbi-key {
+  min-width: 38px;
+  height: 38px;
+  background: var(--mbi-key-bg);
+  color: var(--mbi-key-color);
+  border: 1px solid var(--mbi-key-border);
+  border-radius: var(--mbi-key-radius);
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 13px;
+  padding: 0 6px;
+  transition: background 0.1s, transform 0.05s;
+  font-family: inherit;
+}
+.mbi-key:hover               { background: #4c4c4c; }
+.mbi-key.mbi-key-active      { background: var(--mbi-key-hl); color: #fff; transform: scale(0.95); }
+.mbi-key.mbi-key-focused         { outline: 2px solid var(--mbi-key-hl); outline-offset: 1px; }
+.mbi-key.mbi-key-focused:hover   { background: #4c4c4c; outline: 2px solid var(--mbi-key-hl); }
+.mbi-key.mbi-key-wide        { min-width: 72px; }
+.mbi-key.mbi-key-wider       { min-width: 100px; }
+.mbi-key.mbi-key-widest      { min-width: 200px; }
+
+/* ── Voice input indicator ──────────────────────────────── */
+#mbi-voice-indicator {
+  position: fixed;
+  top: 48px;
+  right: 20px;
+  background: var(--mbi-bg);
+  border: 1px solid var(--mbi-accent);
+  color: var(--mbi-key-color);
+  padding: 6px 14px;
+  border-radius: 20px;
+  font-size: 13px;
+  z-index: 9998;
+  pointer-events: none;
+  animation: mbi-pulse 1s infinite;
+}
+@keyframes mbi-pulse {
+  0%, 100% { opacity: 1; }
+  50%       { opacity: 0.45; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  #mbi-voice-indicator {
+    animation: none;
+    opacity: 1;
+  }
+}
+/* ── Controller status badge ────────────────────────────── */
+#mbi-status-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 12px;
+  white-space: nowrap;
+}
+#mbi-status-badge.mbi-connected    { color: var(--mbi-connected);    }
+#mbi-status-badge.mbi-warn         { color: #e5c07b;                  }
+#mbi-status-badge.mbi-disconnected { color: var(--mbi-disconnected); }

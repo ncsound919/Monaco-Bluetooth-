@@ -57,15 +57,15 @@ MonacoBluetoothIntegration.init({
 | Triangle/Y (hold) | editor / chat | Voice input |
 | Start/Menu | global | Command palette |
 | Select/View | global | Quick open |
-| L1 + □/X | editor | Copy |
-| L1 + △/Y | editor | Cut |
-| L1 + ○/B | editor | Paste |
-| L2 + □/X | editor | Undo |
-| L2 + △/Y | editor | Redo |
-| L2 + ○/B | editor | Save |
-| R2 + △/Y | editor | Format document |
+| L1 + Square/X (□/X) | editor | Copy |
+| L1 + Triangle/Y (△/Y) | editor | Cut |
+| L1 + Circle/B (○/B) | editor | Paste |
+| L2 + Square/X (□/X) | editor | Undo |
+| L2 + Triangle/Y (△/Y) | editor | Redo |
+| L2 + Circle/B (○/B) | editor | Save |
+| R2 + Triangle/Y (△/Y) | editor | Format document |
 | R3 | editor | Go to definition |
-| L3 + □/X | editor | Find |
+| L3 + Square/X (□/X) | editor | Find |
 | Left stick | editor | Move cursor |
 | Right stick | editor | Scroll (hold L2 for 3× speed) |
 | R2 | tabs | Next tab |

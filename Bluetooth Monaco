@@ -1,0 +1,601 @@
+{
+  "ideName": "Monaco Controller IDE",
+  "version": "1.1",
+  "bluetooth": {
+    "enabled": true,
+    "api": "Web Bluetooth API",
+    "serviceUUID": "0000ffe0-0000-1000-8000-00805f9b34fb",
+    "characteristicUUID": "0000ffe1-0000-1000-8000-00805f9b34fb",
+    "pairing": {
+      "triggerButton": "🎮 Connect Controller",
+      "statusDisplay": "#controller-status",
+      "autoReconnect": true,
+      "reconnectIntervalMs": 3000,
+      "maxReconnectAttempts": 5
+    },
+    "deviceProfiles": [
+      {
+        "name": "PlayStation DualShock / DualSense",
+        "vendorId": "054c",
+        "protocol": "HID-over-GATT",
+        "buttonLayout": "playstation"
+      },
+      {
+        "name": "Xbox Wireless Controller",
+        "vendorId": "045e",
+        "protocol": "HID-over-GATT",
+        "buttonLayout": "xbox"
+      },
+      {
+        "name": "Generic BT HID Gamepad",
+        "vendorId": "*",
+        "protocol": "HID-over-GATT",
+        "buttonLayout": "generic"
+      }
+    ],
+    "connection": {
+      "onConnect": {
+        "statusBarUpdate": { "id": "controller-status", "content": "🎮 Connected", "color": "#4ec9b0" },
+        "vibrateFeedback": { "duration": 200, "intensity": 0.5 },
+        "activateControllerMode": true
+      },
+      "onDisconnect": {
+        "statusBarUpdate": { "id": "controller-status", "content": "🎮 Disconnected", "color": "#f48771" },
+        "fallbackToKeyboard": true,
+        "showReconnectPrompt": true
+      },
+      "batteryMonitoring": {
+        "enabled": true,
+        "warningThreshold": 15,
+        "warningVibrate": { "pattern": [100, 50, 100], "intensity": 0.8 }
+      }
+    },
+    "inputPolling": {
+      "method": "event-driven",
+      "fallbackPollingHz": 60,
+      "deadzone": {
+        "analog": 0.12,
+        "trigger": 0.05
+      },
+      "repeatDelay": {
+        "initialMs": 400,
+        "repeatMs": 80
+      }
+    },
+    "hapticFeedback": {
+      "enabled": true,
+      "events": {
+        "fileOpen":       { "duration": 50,  "intensity": 0.3 },
+        "fileSave":       { "duration": 80,  "intensity": 0.4 },
+        "error":          { "pattern": [80, 40, 80], "intensity": 0.7 },
+        "modeSwitch":     { "duration": 60,  "intensity": 0.4 },
+        "commandPalette": { "duration": 100, "intensity": 0.5 },
+        "tabSwitch":      { "duration": 30,  "intensity": 0.2 },
+        "cursorSnap":     { "duration": 20,  "intensity": 0.2 },
+        "contextMenu":    { "duration": 60,  "intensity": 0.3 }
+      }
+    },
+    "buttonMappings": {
+      "note": "Mappings are unified across PlayStation/Xbox layouts via aliases",
+      "aliases": {
+        "Cross_A":       { "ps": "Cross",    "xbox": "A"      },
+        "Circle_B":      { "ps": "Circle",   "xbox": "B"      },
+        "Square_X":      { "ps": "Square",   "xbox": "X"      },
+        "Triangle_Y":    { "ps": "Triangle", "xbox": "Y"      },
+        "L1_LB":         { "ps": "L1",       "xbox": "LB"     },
+        "R1_RB":         { "ps": "R1",       "xbox": "RB"     },
+        "L2_LT":         { "ps": "L2",       "xbox": "LT"     },
+        "R2_RT":         { "ps": "R2",       "xbox": "RT"     },
+        "L3":            { "ps": "L3",       "xbox": "LS"     },
+        "R3":            { "ps": "R3",       "xbox": "RS"     },
+        "Start_Options":  { "ps": "Options", "xbox": "Menu"   },
+        "Select_Back":    { "ps": "Share",   "xbox": "View"   }
+      },
+      "actions": {
+        "global": {
+          "Select_Back":         { "action": "quickOpen",         "keyboard": "Ctrl+P"         },
+          "Start_Options":       { "action": "commandPalette",    "keyboard": "Ctrl+Shift+P"   },
+          "L1_LB + D-Pad Left":  { "action": "focusSidebar",      "keyboard": "Ctrl+Shift+E"   },
+          "L1_LB + D-Pad Right": { "action": "focusEditor",       "keyboard": "Ctrl+1"         },
+          "R1_RB + D-Pad Down":  { "action": "focusTerminal",     "keyboard": "Ctrl+`"         }
+        },
+        "editor": {
+          "cursorMove": {
+            "LeftStick":                      { "action": "moveCursor",          "description": "Free cursor movement"           },
+            "D-Pad":                          { "action": "moveCursorChar",      "description": "Precise char/line movement"     },
+            "L1_LB + D-Pad Left":             { "action": "cursorWordLeft",      "keyboard": "Ctrl+Left"                         },
+            "L1_LB + D-Pad Right":            { "action": "cursorWordRight",     "keyboard": "Ctrl+Right"                        },
+            "L1_LB + D-Pad Up":               { "action": "cursorLineStart",     "keyboard": "Home"                              },
+            "L1_LB + D-Pad Down":             { "action": "cursorLineEnd",       "keyboard": "End"                               }
+          },
+          "selection": {
+            "Hold R1_RB + D-Pad":             { "action": "selectText",          "description": "Extend selection"               },
+            "Double-tap Cross_A":             { "action": "selectWord",          "keyboard": "Ctrl+D"                            },
+            "R1_RB + Cross_A":               { "action": "selectLine",          "keyboard": "Ctrl+L"                            },
+            "L2_LT + R2_RT":                  { "action": "selectAll",           "keyboard": "Ctrl+A"                            }
+          },
+          "editing": {
+            "L1_LB + Square_X":              { "action": "copy",                "keyboard": "Ctrl+C"                            },
+            "L1_LB + Triangle_Y":            { "action": "cut",                 "keyboard": "Ctrl+X"                            },
+            "L1_LB + Circle_B":              { "action": "paste",               "keyboard": "Ctrl+V"                            },
+            "L2_LT + Square_X":              { "action": "undo",                "keyboard": "Ctrl+Z"                            },
+            "L2_LT + Triangle_Y":            { "action": "redo",                "keyboard": "Ctrl+Shift+Z"                      },
+            "L2_LT + Circle_B":              { "action": "save",                "keyboard": "Ctrl+S"                            },
+            "L2_LT + Cross_A":               { "action": "saveAll",             "keyboard": "Ctrl+Shift+S"                      },
+            "R2_RT + Triangle_Y":            { "action": "format",              "keyboard": "Alt+Shift+F"                       },
+            "R2_RT + Square_X":              { "action": "toggleComment",       "keyboard": "Ctrl+/"                            },
+            "R2_RT + Circle_B":              { "action": "indentLine",          "keyboard": "Tab"                               },
+            "R2_RT + Cross_A":               { "action": "outdentLine",         "keyboard": "Shift+Tab"                         }
+          },
+          "navigation": {
+            "R3":                             { "action": "goToDefinition",      "keyboard": "F12"                               },
+            "L3 + Square_X":                 { "action": "find",                "keyboard": "Ctrl+F"                            },
+            "L3 + Triangle_Y":               { "action": "replace",             "keyboard": "Ctrl+H"                            },
+            "L3 + Circle_B":                 { "action": "goToLine",            "keyboard": "Ctrl+G"                            },
+            "L3 + Cross_A":                  { "action": "peekDefinition",      "keyboard": "Alt+F12"                           },
+            "R1_RB + R2_RT":                 { "action": "nextError",           "keyboard": "F8"                                },
+            "L1_LB + L2_LT":                 { "action": "prevError",           "keyboard": "Shift+F8"                          }
+          },
+          "scroll": {
+            "RightStick":                     { "action": "scroll",              "description": "Scroll editor viewport"         },
+            "L2_LT + RightStick":            { "action": "scrollFast",          "description": "Fast scroll (3× speed)"         }
+          },
+          "intellisense": {
+            "Triangle_Y":                     { "action": "triggerSuggest",      "keyboard": "Ctrl+Space"                        },
+            "Cross_A (in suggest list)":      { "action": "acceptSuggestion",    "keyboard": "Enter"                             },
+            "Circle_B (in suggest list)":     { "action": "dismissSuggest",      "keyboard": "Escape"                            },
+            "D-Pad Up/Down (in suggest)":     { "action": "navigateSuggest",     "keyboard": "Up/Down"                           }
+          }
+        },
+        "tabs": {
+          "R2_RT":                            { "action": "nextTab",             "keyboard": "Ctrl+Tab"                          },
+          "L2_LT":                            { "action": "prevTab",             "keyboard": "Ctrl+Shift+Tab"                    },
+          "Hold Circle_B":                    { "action": "closeTab",            "keyboard": "Ctrl+W"                            },
+          "Hold Square_X":                    { "action": "newTab",              "keyboard": "Ctrl+N"                            },
+          "R1_RB + D-Pad Left":              { "action": "moveTabLeft"                                                           },
+          "R1_RB + D-Pad Right":             { "action": "moveTabRight"                                                          }
+        },
+        "activityBar": {
+          "L1_LB + Square_X":               { "action": "openExplorer",         "keyboard": "Ctrl+Shift+E"                      },
+          "L1_LB + Triangle_Y":             { "action": "openSearch",           "keyboard": "Ctrl+Shift+F"                      },
+          "L1_LB + Circle_B":              { "action": "openSourceControl",     "keyboard": "Ctrl+Shift+G"                      },
+          "L1_LB + Cross_A":               { "action": "openExtensions",        "keyboard": "Ctrl+Shift+X"                      }
+        },
+        "sidebar": {
+          "D-Pad Up/Down":                   { "action": "navigateFiles"                                                         },
+          "D-Pad Right":                     { "action": "expandFolder"                                                          },
+          "D-Pad Left":                      { "action": "collapseFolder"                                                        },
+          "Cross_A":                         { "action": "openFile"                                                              },
+          "Circle_B":                        { "action": "showContextMenu"                                                       },
+          "R1_RB + Square_X":              { "action": "newFile",              "keyboard": "Ctrl+N"                            },
+          "R1_RB + Triangle_Y":            { "action": "newFolder",            "keyboard": "Ctrl+Shift+N"                      },
+          "R1_RB + R2_RT":                  { "action": "refresh",             "keyboard": "Ctrl+R"                            },
+          "R1_RB + L2_LT":                  { "action": "collapseAll"                                                          }
+        },
+        "terminal": {
+          "R1_RB + R2_RT":                  { "action": "toggleTerminal",       "keyboard": "Ctrl+`"                            },
+          "L2_LT + R2_RT":                  { "action": "focusTerminal"                                                         },
+          "L1_LB + Square_X (terminal)":   { "action": "newTerminal",          "keyboard": "Ctrl+Shift+`"                      },
+          "L1_LB + Triangle_Y (terminal)": { "action": "clearTerminal"                                                         },
+          "L1_LB + Circle_B (terminal)":   { "action": "closeTerminal",        "keyboard": "Ctrl+D"                            },
+          "Cross_A (terminal)":             { "action": "sendEnter"                                                             },
+          "D-Pad Up/Down (terminal)":       { "action": "historyNavigation"                                                     }
+        },
+        "bottomPanel": {
+          "R1_RB + R2_RT":                  { "action": "toggleTerminal"                                                        },
+          "R1_RB + L2_LT":                  { "action": "toggleChat"                                                            },
+          "R1_RB + L1_LB":                  { "action": "toggleProblems"                                                        }
+        },
+        "chat": {
+          "L2_LT + L1_LB":                  { "action": "focusChatInput"                                                        },
+          "Cross_A (chat)":                  { "action": "sendMessage"                                                           },
+          "Square_X (chat)":                 { "action": "attachFile"                                                            },
+          "Hold Triangle_Y (chat)":          { "action": "voiceInput",          "description": "Hold to record voice"           },
+          "Double-tap Cross_A (chat)":       { "action": "openOnScreenKeyboard"                                                  }
+        }
+      }
+    },
+    "onScreenKeyboard": {
+      "enabled": true,
+      "layout": "qwerty",
+      "trigger": "Double-tap Cross_A on any text input",
+      "navigation": "D-Pad",
+      "confirm": "Cross_A",
+      "backspace": "Square_X",
+      "space": "L1_LB + Cross_A",
+      "shift": "Hold L1_LB",
+      "dismiss": "Circle_B",
+      "theme": {
+        "background": "rgba(30,30,30,0.95)",
+        "keyColor": "#3c3c3c",
+        "keyHighlight": "#007acc",
+        "keyText": "#cccccc",
+        "borderRadius": "6px"
+      }
+    },
+    "voiceInput": {
+      "enabled": true,
+      "api": "Web Speech API",
+      "language": "en-US",
+      "trigger": "Hold Triangle_Y in chat or editor",
+      "visualFeedback": "🎤 Listening...",
+      "interimResults": true,
+      "onResult": {
+        "chat": "insertIntoChatInput",
+        "editor": "insertAtCursor"
+      }
+    },
+    "modes": {
+      "description": "Context-aware mode switching. Active mode determines button behavior.",
+      "list": ["global", "editor", "sidebar", "terminal", "chat", "dialog"],
+      "autoSwitch": true,
+      "switchRules": [
+        { "trigger": "focus:monaco-editor",  "activateMode": "editor"   },
+        { "trigger": "focus:sidebar",        "activateMode": "sidebar"  },
+        { "trigger": "focus:terminal",       "activateMode": "terminal" },
+        { "trigger": "focus:chat-input",     "activateMode": "chat"     },
+        { "trigger": "dialog:open",          "activateMode": "dialog"   }
+      ],
+      "modeIndicator": {
+        "show": true,
+        "position": "status-bar",
+        "id": "controller-mode-indicator"
+      }
+    },
+    "debugMode": {
+      "enabled": false,
+      "logButtonEvents": false,
+      "showButtonOverlay": false,
+      "overlayOpacity": 0.85
+    }
+  },
+  "layout": {
+    "mainStructure": {
+      "titleBar": {
+        "type": "container",
+        "id": "title-bar",
+        "elements": [
+          {
+            "id": "window-controls",
+            "type": "buttons",
+            "actions": ["minimize", "maximize", "close"]
+          },
+          {
+            "id": "ide-title",
+            "type": "text",
+            "content": "Monaco IDE"
+          },
+          {
+            "id": "menu-bar",
+            "type": "dropdown-menu",
+            "items": ["File", "Edit", "Selection", "View", "Go", "Run", "Terminal", "Help"]
+          }
+        ]
+      },
+      "mainContent": {
+        "type": "split-view",
+        "orientation": "horizontal",
+        "sections": [
+          {
+            "id": "activity-bar",
+            "type": "vertical-toolbar",
+            "position": "left",
+            "width": 48,
+            "elements": [
+              { "id": "explorer",       "icon": "files-icon",      "label": "Explorer",       "shortcut": "Ctrl+Shift+E", "controllerMap": "L1 + Square"   },
+              { "id": "search",         "icon": "search-icon",     "label": "Search",         "shortcut": "Ctrl+Shift+F", "controllerMap": "L1 + Triangle" },
+              { "id": "source-control", "icon": "git-icon",        "label": "Source Control", "shortcut": "Ctrl+Shift+G", "controllerMap": "L1 + Circle"   },
+              { "id": "extensions",     "icon": "extensions-icon", "label": "Extensions",     "shortcut": "Ctrl+Shift+X", "controllerMap": "L1 + Cross"    },
+              { "id": "terminal-toggle","icon": "terminal-icon",   "label": "Terminal",       "shortcut": "Ctrl+`",       "controllerMap": "R1 + Circle"   }
+            ]
+          },
+          {
+            "id": "sidebar",
+            "type": "collapsible-panel",
+            "width": 300,
+            "visibility": "visible",
+            "currentView": "explorer",
+            "views": {
+              "explorer": {
+                "id": "file-explorer",
+                "title": "EXPLORER",
+                "type": "tree-view",
+                "actions": [
+                  { "label": "New File",    "shortcut": "Ctrl+N",       "controllerMap": "R1 + Square"   },
+                  { "label": "New Folder",  "shortcut": "Ctrl+Shift+N", "controllerMap": "R1 + Triangle" },
+                  { "label": "Refresh",     "shortcut": "Ctrl+R",       "controllerMap": "R1 + R2"       },
+                  { "label": "Collapse All","shortcut": "",             "controllerMap": "R1 + L2"       }
+                ],
+                "navigation": {
+                  "controllerMode": "tree-navigation",
+                  "controls": {
+                    "up-down":   "D-Pad Up/Down (move through files)",
+                    "left-right":"D-Pad Left/Right (expand/collapse folders)",
+                    "select":    "Cross_A (open file)",
+                    "context":   "Circle_B (show options)"
+                  }
+                }
+              },
+              "search": {
+                "id": "search-panel",
+                "title": "SEARCH",
+                "type": "search-interface",
+                "elements": [
+                  { "id": "search-input",  "type": "text-input", "placeholder": "Search text",    "controllerFocus": "L2 + D-Pad Up"   },
+                  { "id": "replace-input", "type": "text-input", "placeholder": "Replace with",   "controllerFocus": "L2 + D-Pad Down" },
+                  { "id": "search-button", "type": "button",     "label": "Search",               "controllerMap": "Cross_A"           },
+                  { "id": "replace-button","type": "button",     "label": "Replace",              "controllerMap": "Square_X"          }
+                ]
+              },
+              "extensions": {
+                "id": "extensions-panel",
+                "title": "EXTENSIONS",
+                "type": "list-view",
+                "elements": [
+                  { "id": "search-extensions", "type": "text-input",      "placeholder": "Search extensions in Marketplace", "controllerFocus": "L2 + R1" },
+                  {
+                    "id": "extensions-list",
+                    "type": "scrollable-list",
+                    "items": [],
+                    "navigation": {
+                      "controllerMode": "list-navigation",
+                      "controls": {
+                        "scroll":  "Right Analog Stick",
+                        "select":  "Cross_A",
+                        "install": "Triangle_Y",
+                        "disable": "Square_X"
+                      }
+                    }
+                  }
+                ]
+              }
+            }
+          },
+          {
+            "id": "editor-area",
+            "type": "main-content",
+            "flex": 1,
+            "elements": [
+              {
+                "id": "tabs-bar",
+                "type": "tab-container",
+                "tabs": [],
+                "actions": {
+                  "new-tab":      "Ctrl+T",
+                  "close-tab":    "Ctrl+W",
+                  "next-tab":     "Ctrl+Tab",
+                  "previous-tab": "Ctrl+Shift+Tab"
+                },
+                "controllerNavigation": {
+                  "next-tab":     "R2",
+                  "previous-tab": "L2",
+                  "close-tab":    "Hold Circle_B",
+                  "new-tab":      "Hold Square_X"
+                }
+              },
+              {
+                "id": "monaco-editor",
+                "type": "code-editor",
+                "language": "javascript",
+                "lineNumbers": true,
+                "minimap": true,
+                "controllerMode": {
+                  "active": true,
+                  "cursorControl": {
+                    "move":       "Left Analog Stick",
+                    "fine-move":  "D-Pad",
+                    "jump-word":  "Hold L1 + D-Pad Left/Right",
+                    "jump-line":  "Hold L1 + D-Pad Up/Down"
+                  },
+                  "selection": {
+                    "start-selection": "Hold R1 + move",
+                    "select-word":     "Double-tap Cross_A",
+                    "select-line":     "Hold R1 + Cross_A"
+                  },
+                  "editing": {
+                    "copy":  "L1 + Square_X",
+                    "cut":   "L1 + Triangle_Y",
+                    "paste": "L1 + Circle_B",
+                    "undo":  "L2 + Square_X",
+                    "redo":  "L2 + Triangle_Y"
+                  },
+                  "special": {
+                    "command-palette":  "Start_Options",
+                    "quick-open":       "Select_Back",
+                    "go-to-definition": "R3",
+                    "find":             "L3 + Square_X",
+                    "replace":          "L3 + Triangle_Y"
+                  }
+                }
+              },
+              {
+                "id": "status-bar",
+                "type": "status-bar",
+                "elements": [
+                  { "id": "branch",                  "type": "info", "content": "main",         "controllerSelectable": true  },
+                  { "id": "errors",                  "type": "info", "content": "0 errors",      "controllerSelectable": true  },
+                  { "id": "warnings",                "type": "info", "content": "0 warnings",    "controllerSelectable": true  },
+                  { "id": "line-col",                "type": "info", "content": "Ln 1, Col 1",   "controllerSelectable": true  },
+                  { "id": "language",                "type": "info", "content": "JavaScript",    "controllerSelectable": true  },
+                  { "id": "controller-status",       "type": "icon", "content": "🎮 Connected",  "visible": true               },
+                  { "id": "controller-mode-indicator","type": "info", "content": "MODE: global", "visible": true               }
+                ]
+              }
+            ]
+          }
+        ]
+      },
+      "bottomPanel": {
+        "id": "bottom-panel",
+        "type": "collapsible-panel",
+        "height": 250,
+        "visibility": "collapsed",
+        "tabs": [
+          {
+            "id": "terminal",
+            "label": "TERMINAL",
+            "icon": "terminal-icon",
+            "controllerToggle": "R1 + R2",
+            "content": {
+              "type": "xterm-terminal",
+              "rows": 10,
+              "controllerMode": {
+                "focus":    "L2 + R2",
+                "input":    "On-screen keyboard (D-Pad + Cross_A)",
+                "commands": {
+                  "new-terminal": "L1 + Square_X",
+                  "clear":        "L1 + Triangle_Y",
+                  "close":        "L1 + Circle_B"
+                }
+              }
+            }
+          },
+          {
+            "id": "chat",
+            "label": "CHAT",
+            "icon": "chat-icon",
+            "controllerToggle": "R1 + L2",
+            "content": {
+              "type": "chat-interface",
+              "elements": [
+                { "id": "chat-messages", "type": "message-history", "height": "flex" },
+                {
+                  "id": "chat-input",
+                  "type": "text-input",
+                  "placeholder": "Type a message...",
+                  "controllerFocus": "L2 + L1",
+                  "actions": {
+                    "send":        "Cross_A",
+                    "attach-file": "Square_X",
+                    "use-voice":   "Triangle_Y"
+                  },
+                  "input-methods": {
+                    "onscreen-keyboard": {
+                      "trigger":    "Double-tap Cross_A",
+                      "layout":     "qwerty",
+                      "navigation": "D-Pad",
+                      "select":     "Cross_A"
+                    },
+                    "voice-input": {
+                      "trigger": "Hold Triangle_Y",
+                      "status":  "🎤 Listening..."
+                    }
+                  }
+                }
+              ]
+            }
+          },
+          {
+            "id": "problems",
+            "label": "PROBLEMS",
+            "icon": "warning-icon",
+            "controllerToggle": "R1 + L1",
+            "content": {
+              "type": "list-view",
+              "items": [],
+              "actions": {
+                "go-to-error": "Cross_A",
+                "quick-fix":   "Square_X"
+              }
+            }
+          }
+        ]
+      }
+    },
+    "controllerConfig": {
+      "type": "PlayStation-style generic",
+      "mapping": {
+        "buttons": [
+          {"index": 0,  "name": "Cross",       "primary": "Select/Action",      "modifier": false},
+          {"index": 1,  "name": "Circle",       "primary": "Cancel/Back",        "modifier": false},
+          {"index": 2,  "name": "Square",       "primary": "Context Menu",       "modifier": "L1 modifier"},
+          {"index": 3,  "name": "Triangle",     "primary": "Options",            "modifier": "R1 modifier"},
+          {"index": 4,  "name": "L1",           "primary": "Modifier Key 1",     "modifier": true},
+          {"index": 5,  "name": "R1",           "primary": "Modifier Key 2",     "modifier": true},
+          {"index": 6,  "name": "L2",           "primary": "Modifier Key 3",     "modifier": true},
+          {"index": 7,  "name": "R2",           "primary": "Modifier Key 4",     "modifier": true},
+          {"index": 8,  "name": "Select/Back",  "primary": "Quick Open",         "modifier": false},
+          {"index": 9,  "name": "Start/Options","primary": "Command Palette",    "modifier": false},
+          {"index": 10, "name": "L3",           "primary": "Find",               "modifier": false},
+          {"index": 11, "name": "R3",           "primary": "Go to Definition",   "modifier": false},
+          {"index": 12, "name": "D-Pad Up",     "primary": "Move Up",            "modifier": false},
+          {"index": 13, "name": "D-Pad Down",   "primary": "Move Down",          "modifier": false},
+          {"index": 14, "name": "D-Pad Left",   "primary": "Move Left",          "modifier": false},
+          {"index": 15, "name": "D-Pad Right",  "primary": "Move Right",         "modifier": false}
+        ],
+        "axes": [
+          {"index": 0, "name": "Left Stick X",  "control": "Cursor Horizontal"},
+          {"index": 1, "name": "Left Stick Y",  "control": "Cursor Vertical"},
+          {"index": 2, "name": "Right Stick X", "control": "Scroll Horizontal"},
+          {"index": 3, "name": "Right Stick Y", "control": "Scroll Vertical"}
+        ]
+      },
+      "navigationModes": {
+        "global": {
+          "move-focus":      "Left Analog Stick (cursor)",
+          "snap-elements":   "D-Pad (between UI elements)",
+          "select":          "Cross_A",
+          "back":            "Circle_B",
+          "menu":            "Triangle_Y",
+          "context":         "Square_X",
+          "command-palette": "Start",
+          "quick-open":      "Select"
+        },
+        "editor-mode": {
+          "activate": "Focus on editor area",
+          "cursor":   "Left Analog Stick / D-Pad",
+          "scroll":   "Right Analog Stick",
+          "select":   "Hold R1 + move",
+          "commands": "Hold L1 + buttons"
+        },
+        "sidebar-mode": {
+          "activate":        "L1 + D-Pad Left",
+          "navigate":        "D-Pad",
+          "expand-folder":   "D-Pad Right",
+          "collapse-folder": "D-Pad Left",
+          "open-file":       "Cross_A"
+        },
+        "terminal-mode": {
+          "activate": "R1 + R2",
+          "input":    "On-screen keyboard",
+          "send":     "Cross_A",
+          "clear":    "Triangle_Y"
+        },
+        "chat-mode": {
+          "activate":     "R1 + L2",
+          "input-focus":  "Cross_A",
+          "send":         "Cross_A (when typing)",
+          "voice":        "Hold Triangle_Y"
+        }
+      }
+    },
+    "theming": {
+      "modern-dark": {
+        "colors": {
+          "background":   "#1e1e1e",
+          "sidebar":      "#252526",
+          "activity-bar": "#333333",
+          "editor":       "#1e1e1e",
+          "status-bar":   "#007acc",
+          "accent":       "#007acc",
+          "text":         "#cccccc",
+          "selection":    "#264f78"
+        },
+        "typography": {
+          "font-family":  "'Segoe UI', system-ui, sans-serif",
+          "editor-font":  "'Cascadia Code', 'Fira Code', monospace",
+          "size": {
+            "small":  "11px",
+            "normal": "13px",
+            "large":  "16px"
+          }
+        },
+        "effects": {
+          "blur":         "backdrop-filter: blur(10px)",
+          "transparency": "rgba(30, 30, 30, 0.8)",
+          "animations":   "smooth transitions"
+        }
+      }
+    }
+  }
+}

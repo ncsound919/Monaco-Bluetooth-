@@ -103,8 +103,9 @@ const BluetoothManager = (() => {
 
   function _scheduleReconnect() {
     if (_reconnectCount >= MAX_RECONNECT_ATTEMPTS || !_device) return;
-    _reconnectCount++;
     _reconnectTimer = setTimeout(async () => {
+      if (_reconnectCount >= MAX_RECONNECT_ATTEMPTS || !_device) return;
+      _reconnectCount++;
       try { await _connectGatt(); } catch { _scheduleReconnect(); }
     }, RECONNECT_INTERVAL_MS);
   }
